@@ -5,7 +5,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-    TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
+  TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
 
 concurrency:
     group: terraform-destroy

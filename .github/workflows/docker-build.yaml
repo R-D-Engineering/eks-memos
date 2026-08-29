@@ -11,8 +11,8 @@ on:
     
 env:
   AWS_REGION: us-east-1
-    ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
-    ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+  ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
 
 concurrency:
     group: build-and-push-${{ github.ref }}
