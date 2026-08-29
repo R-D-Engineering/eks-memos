@@ -1,0 +1,84 @@
+name: Bootstrap Terraform Plan
+
+on:
+    workflow_run:
+        workflows: ["Build and Deploy"]
+        types:
+          - completed
+    workflow_dispatch:
+
+concurrency:
+    group: terraform-plan
+    cancel-in-progress: true
+
+env:
+  AWS_REGION: us-east-1
+  TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
+
+jobs:
+    terraform-plan:
+        runs-on: ubuntu-latest
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+        permissions:
+            contents: read
+            id-token: write
+
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+          with:
+            ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ env.AWS_REGION }}
+
+        - name: Setup TFLint
+          uses: terraform-linters/setup-tflint@v6
+          with:
+            tflint_version: v0.56.0
+
+        - name: Init TFLint
+          working-directory: terraform/bootstrap
+          run: tflint --init
+      
+        - name: Run TFLint
+          working-directory: terraform/bootstrap
+          run: tflint
+
+        - name: Setup Checkov
+          uses: bridgecrewio/checkov-action@v12
+          with:
+            directory: terraform/bootstrap
+            soft_fail: true
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v4
+          with:
+            terraform_version: 1.15.0
+
+        - name: Terraform Init
+          working-directory: terraform/bootstrap
+          run: terraform init
+
+        - name: Terraform format
+          working-directory: terraform/bootstrap
+          run: terraform fmt -check
+
+        - name: Terraform Validate
+          working-directory: terraform/bootstrap
+          run: terraform validate
+
+        - name: Terraform Plan
+          working-directory: terraform/bootstrap
+          run: terraform plan -input=false -lock-timeout=2m -out=tfplan
+
+        - name: Upload Terraform Plan
+          uses: actions/upload-artifact@v4
+          with:
+            name: terraform-plan
+            path: terraform/bootstrap/tfplan
