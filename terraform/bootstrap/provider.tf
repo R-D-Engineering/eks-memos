@@ -7,6 +7,14 @@ terraform {
       version = "6.50.0"
     }
   }
+
+  backend "s3" {
+    bucket       = "memos-tfstate"
+    key          = "bootstrap/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {

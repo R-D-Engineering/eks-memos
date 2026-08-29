@@ -65,6 +65,36 @@ jobs:
           working-directory: terraform/bootstrap
           run: terraform init
 
+        # First-run adoption: import any resources that already exist in AWS
+        # but are missing from Terraform state. Idempotent: subsequent runs
+        # short-circuit when the resource is already in state.
+        - name: Adopt pre-existing AWS resources into state
+          working-directory: terraform/bootstrap
+          env:
+            AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
+          run: |
+            set -uo pipefail
+            ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+            adopt() {
+              local addr="$1" id="$2"
+              if terraform state show "$addr" >/dev/null 2>&1; then
+                echo "already in state: $addr"
+                return
+              fi
+              echo "importing $addr <- $id"
+              terraform import -input=false -lock-timeout=2m "$addr" "$id" \
+                || echo "skip: $addr (not present in AWS or not importable)"
+            }
+
+            adopt 'aws_s3_bucket.s3_bucket'                         'memos-tfstate'
+            adopt 'aws_ecr_repository.ecr_repository'               'memos-ecr'
+            adopt 'aws_iam_openid_connect_provider.github'          "arn:aws:iam::${ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
+            adopt 'aws_iam_role.github_actions_role'                'memos-ecr-github-actions-role'
+            adopt 'aws_iam_role.terraform_plan'                     'terraform-plan-role'
+            adopt 'aws_iam_role.terraform_apply'                    'terraform-apply-role'
+            adopt 'aws_iam_role.terraform_destroy'                  'terraform-destroy-role'
+
         - name: Terraform format
           working-directory: terraform/bootstrap
           run: terraform fmt -check
