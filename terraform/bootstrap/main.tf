@@ -9,8 +9,8 @@ resource "aws_s3_bucket" "s3_bucket" {
 # claim, so `sub` looks like `repo:<owner>@<owner_id>/<repo>@<repo_id>:ref:...`
 # instead of `repo:<owner>/<repo>:ref:...`. Match both forms with a wildcard.
 locals {
-  github_owner = split("/", var.github_repo)[0]
-  github_name  = split("/", var.github_repo)[1]
+  github_owner    = split("/", var.github_repo)[0]
+  github_name     = split("/", var.github_repo)[1]
   github_sub_main = "repo:${local.github_owner}*/${local.github_name}*:ref:refs/heads/main"
 }
 
