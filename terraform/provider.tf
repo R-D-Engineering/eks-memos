@@ -14,9 +14,9 @@ terraform {
   }
 
   backend "s3" {
-    bucket       = "memos-aamir-s3"
+    bucket       = "memos-tfstate"
     key          = "terraform.tfstate"
-    region       = "eu-west-2"
+    region       = "us-east-1"
     use_lockfile = true
     encrypt      = true
   }
