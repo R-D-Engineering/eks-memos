@@ -72,6 +72,20 @@ jobs:
             echo "OIDC providers on this account:"
             aws iam list-open-id-connect-providers
 
+        # Fetch the actual GitHub OIDC token and decode its payload so we can
+        # compare the real sub/aud/iss claims against the trust policy above.
+        - name: Decode GitHub OIDC token claims
+          run: |
+            TOKEN=$(curl -sSL \
+              -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" \
+              | python3 -c 'import sys,json;print(json.load(sys.stdin)["value"])')
+            PAYLOAD=$(echo "$TOKEN" | cut -d'.' -f2)
+            # base64url -> base64
+            PAD=$(( 4 - ${#PAYLOAD} % 4 ))
+            [ $PAD -lt 4 ] && PAYLOAD="${PAYLOAD}$(printf '=%.0s' $(seq 1 $PAD))"
+            echo "$PAYLOAD" | tr '_-' '/+' | base64 -d | python3 -m json.tool
+
         - name: Configure AWS credentials via OIDC
           uses: aws-actions/configure-aws-credentials@v4
           with:
