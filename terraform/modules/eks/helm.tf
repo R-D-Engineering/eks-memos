@@ -7,6 +7,12 @@ resource "helm_release" "external_dns" {
   create_namespace = true
   take_ownership   = true
 
+  # The cloudflare-api-token Secret is provisioned later by External Secrets
+  # Operator (managed by ArgoCD in k8s/secrets/). Don't block Terraform on
+  # Pod readiness — external-dns will recover once the Secret exists.
+  wait          = false
+  wait_for_jobs = false
+
   values = [
     yamlencode({
       provider = "cloudflare"
