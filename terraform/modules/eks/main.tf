@@ -162,10 +162,11 @@ resource "aws_iam_role_policy" "memos_secret_manager_policy" {
 }
 
 resource "aws_eks_pod_identity_association" "memos_pod_identity_association" {
-  cluster_name    = var.cluster_name
+  cluster_name    = aws_eks_cluster.eks_cluster.name
   namespace       = var.namespace
   service_account = var.service_account_name
   role_arn        = aws_iam_role.memos_pod_role.arn
+  depends_on      = [aws_eks_cluster.eks_cluster]
 }
 
 resource "aws_eks_access_entry" "memos_access_entry" {
