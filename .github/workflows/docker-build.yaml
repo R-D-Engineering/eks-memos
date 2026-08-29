@@ -54,6 +54,24 @@ jobs:
             echo "expected sub: repo:${{ github.repository }}:ref:${{ github.ref }}"
             echo "BUILD_ROLE set: $([ -n \"$BUILD_ROLE\" ] && echo yes || echo NO)"
 
+        # Uses static creds to fetch the live trust policy of the target role
+        # so we can see exactly which condition STS is rejecting.
+        - name: Inspect live trust policy of BUILD_ROLE
+          env:
+            AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_DEFAULT_REGION:    ${{ env.AWS_REGION }}
+            BUILD_ROLE:            ${{ secrets.BUILD_ROLE }}
+          run: |
+            ROLE_NAME="${BUILD_ROLE##*/}"
+            echo "Role name: ${ROLE_NAME}"
+            aws sts get-caller-identity
+            aws iam get-role --role-name "${ROLE_NAME}" \
+              --query 'Role.AssumeRolePolicyDocument' --output json
+            echo "---"
+            echo "OIDC providers on this account:"
+            aws iam list-open-id-connect-providers
+
         - name: Configure AWS credentials via OIDC
           uses: aws-actions/configure-aws-credentials@v4
           with:
