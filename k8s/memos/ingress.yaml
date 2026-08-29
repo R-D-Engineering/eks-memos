@@ -6,15 +6,15 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     cert-manager.io/cluster-issuer: letsencrypt-prod
-    external-dns.alpha.kubernetes.io/hostname: memos.aamir-memos.co.uk
+    external-dns.alpha.kubernetes.io/hostname: memos.ai-engineering-aph.online
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - memos.aamir-memos.co.uk
+        - memos.ai-engineering-aph.online
       secretName: memos-tls
   rules:
-    - host: memos.aamir-memos.co.uk
+    - host: memos.ai-engineering-aph.online
       http:
         paths:
           - path: /

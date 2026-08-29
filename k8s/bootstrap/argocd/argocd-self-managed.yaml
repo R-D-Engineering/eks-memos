@@ -17,7 +17,7 @@ spec:
           params:
             server.insecure: true
           cm:
-            url: https://argocd.aamir-memos.co.uk
+            url: https://argocd.ai-engineering-aph.online
           rbac:
             policy.default: role:read-only
 
@@ -30,7 +30,7 @@ spec:
           ingress:
             enabled: true
             ingressClassName: traefik
-            hostname: argocd.aamir-memos.co.uk
+            hostname: argocd.ai-engineering-aph.online
             path: /
             pathType: Prefix
 
@@ -43,7 +43,7 @@ spec:
 
             tls:
               - hosts:
-                  - argocd.aamir-memos.co.uk
+                  - argocd.ai-engineering-aph.online
                 secretName: argocd-server-tls
 
   destination:

@@ -25,12 +25,12 @@ spec:
             annotations:
               cert-manager.io/cluster-issuer: letsencrypt-prod
             hosts:
-              - grafana.aamir-memos.co.uk
+              - grafana.ai-engineering-aph.online
             path: /
             pathType: Prefix
             tls:
               - hosts:
-                  - grafana.aamir-memos.co.uk
+                  - grafana.ai-engineering-aph.online
                 secretName: grafana-tls
 
         prometheus:

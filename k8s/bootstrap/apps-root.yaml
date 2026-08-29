@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://github.com/AamirKT/eks-memos.git'
+    repoURL: 'https://github.com/R-D-Engineering/eks-memos.git'
     targetRevision: main
     path: k8s/apps
   destination:
