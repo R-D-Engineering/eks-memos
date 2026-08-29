@@ -5,6 +5,15 @@ resource "aws_s3_bucket" "s3_bucket" {
   }
 }
 
+# The GitHub org has enabled immutable actor/repo IDs in the OIDC subject
+# claim, so `sub` looks like `repo:<owner>@<owner_id>/<repo>@<repo_id>:ref:...`
+# instead of `repo:<owner>/<repo>:ref:...`. Match both forms with a wildcard.
+locals {
+  github_owner = split("/", var.github_repo)[0]
+  github_name  = split("/", var.github_repo)[1]
+  github_sub_main = "repo:${local.github_owner}*/${local.github_name}*:ref:refs/heads/main"
+}
+
 resource "aws_s3_bucket_versioning" "s3_bucket_versioning" {
   bucket = aws_s3_bucket.s3_bucket.id
 
@@ -110,7 +119,10 @@ resource "aws_iam_role" "github_actions_role" {
         Action = "sts:AssumeRoleWithWebIdentity"
         Condition = {
           StringEquals = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = local.github_sub_main
           }
         }
       }
@@ -180,7 +192,7 @@ resource "aws_iam_role" "terraform_plan" {
           }
 
           StringLike = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = local.github_sub_main
           }
         }
       }
@@ -255,7 +267,10 @@ resource "aws_iam_role" "terraform_apply" {
 
         Condition = {
           StringEquals = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = local.github_sub_main
           }
         }
       }
@@ -355,7 +370,10 @@ resource "aws_iam_role" "terraform_destroy" {
 
         Condition = {
           StringEquals = {
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_repo}:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
+          }
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = local.github_sub_main
           }
         }
       }
