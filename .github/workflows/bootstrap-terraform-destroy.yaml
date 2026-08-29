@@ -1,0 +1,44 @@
+name: Bootstrap Terraform Destroy
+
+on:
+    workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
+
+concurrency:
+    group: terraform-destroy
+    cancel-in-progress: false
+   
+jobs:
+    terraform-destroy:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            id-token: write
+
+        steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ env.AWS_REGION }}
+
+        - name: Setup Terraform
+          uses: hashicorp/setup-terraform@v4
+          with:
+            terraform_version: 1.15.0
+            
+        - name: Terraform Init
+          working-directory: terraform/bootstrap
+          run: terraform init -reconfigure
+
+        - name: Terraform Destroy
+          working-directory: terraform/bootstrap
+          run: terraform destroy -auto-approve -lock-timeout=20m

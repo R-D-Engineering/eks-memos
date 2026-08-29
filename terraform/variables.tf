@@ -145,12 +145,12 @@ variable "skip_final_snapshot" {
 variable "domain_name" {
   description = "The domain name for the Route 53 hosted zone"
   type        = string
-  default     = "aamir-memos.co.uk."
+  default     = "ai-engineering-aph.online"
 }
 
 variable "memos_access_policy_arn" {
   description = "The ARN of the IAM policy for Memos access"
   type        = string
-  default     = "arn:aws:iam::657672948849:role/terraform-plan-role"
+  default     = "arn:aws:iam::681302732440:role/terraform-plan-role"
 }
 
