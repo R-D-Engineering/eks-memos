@@ -12,7 +12,7 @@ concurrency:
     cancel-in-progress: true
 
 env:
-    AWS_REGION: eu-west-2
+  AWS_REGION: us-east-1
     TF_VAR_domain_name: ${{ vars.DOMAIN_NAME }}
 
 jobs:

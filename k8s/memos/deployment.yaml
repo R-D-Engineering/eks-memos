@@ -16,7 +16,7 @@ spec:
       serviceAccountName: memos-sa
       containers:
         - name: memos
-          image: 657672948849.dkr.ecr.eu-west-2.amazonaws.com/memos-ecr:git-40c95d67
+          image: 657672948849.dkr.ecr.us-east-1.amazonaws.com/memos-ecr:git-40c95d67
           ports:
             - containerPort: 8081
           env:

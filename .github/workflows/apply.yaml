@@ -13,7 +13,7 @@ concurrency:
     cancel-in-progress: true
 
 env:
-    AWS_REGION: eu-west-2
+  AWS_REGION: us-east-1
    
 jobs:
     terraform-apply:
