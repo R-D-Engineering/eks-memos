@@ -81,10 +81,13 @@ jobs:
               "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com" \
               | python3 -c 'import sys,json;print(json.load(sys.stdin)["value"])')
             PAYLOAD=$(echo "$TOKEN" | cut -d'.' -f2)
-            # base64url -> base64
             PAD=$(( 4 - ${#PAYLOAD} % 4 ))
             [ $PAD -lt 4 ] && PAYLOAD="${PAYLOAD}$(printf '=%.0s' $(seq 1 $PAD))"
-            echo "$PAYLOAD" | tr '_-' '/+' | base64 -d | python3 -m json.tool
+            CLAIMS=$(echo "$PAYLOAD" | tr '_-' '/+' | base64 -d)
+            echo "===== FULL CLAIMS ====="
+            echo "$CLAIMS" | python3 -m json.tool
+            echo "===== KEY CLAIMS FOR TRUST POLICY ====="
+            echo "$CLAIMS" | python3 -c "import sys,json; c=json.load(sys.stdin); print('sub:', repr(c.get('sub'))); print('aud:', repr(c.get('aud'))); print('iss:', repr(c.get('iss')))"
 
         - name: Configure AWS credentials via OIDC
           uses: aws-actions/configure-aws-credentials@v4
