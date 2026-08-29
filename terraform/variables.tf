@@ -25,13 +25,13 @@ variable "private_subnet_cidrs" {
 variable "availability_zones" {
   description = "A list of availability zones to use for the subnets"
   type        = list(string)
-  default     = ["eu-west-2a", "eu-west-2b"]
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "aws_region" {
   description = "The AWS region to deploy resources in"
   type        = string
-  default     = "eu-west-2"
+  default     = "us-east-1"
 }
 
 variable "availability_mode" {

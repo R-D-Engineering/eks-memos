@@ -1,7 +1,7 @@
 variable "s3_bucket_name" {
   description = "The name of the S3 bucket to create"
   type        = string
-  default     = "memos-aamir-s3"
+  default     = "memos-tfstate"
 }
 
 variable "ecr_repository_name" {
@@ -13,5 +13,5 @@ variable "ecr_repository_name" {
 variable "github_repo" {
   description = "The GitHub repository in the format 'owner/repo'"
   type        = string
-  default     = "AamirKT/eks-memos"
+  default     = "R-D-Engineering/eks-memos"
 }
