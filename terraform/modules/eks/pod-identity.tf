@@ -20,6 +20,36 @@ resource "aws_iam_role" "pod_identity_external_dns" {
   })
 }
 
+data "aws_route53_zone" "public" {
+  name         = var.domain_name
+  private_zone = false
+}
+
+resource "aws_iam_role_policy" "external_dns_policy" {
+  name = "${var.cluster_name}-pod-identity-external-dns-policy"
+  role = aws_iam_role.pod_identity_external_dns.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["route53:ChangeResourceRecordSets"]
+        Resource = ["arn:aws:route53:::hostedzone/${data.aws_route53_zone.public.zone_id}"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "route53:ListHostedZones",
+          "route53:ListResourceRecordSets",
+          "route53:ListTagsForResource"
+        ]
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
 resource "aws_eks_pod_identity_association" "external_dns" {
   cluster_name    = aws_eks_cluster.eks_cluster.name
   namespace       = "external-dns"
@@ -64,8 +94,7 @@ resource "aws_iam_role_policy" "external_secrets_policy" {
         ]
         Resource = [
           var.rds_secret_arn,
-          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:grafana/admin-*",
-          aws_secretsmanager_secret.cloudflare_api_token.arn
+          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:grafana/admin-*"
         ]
       }
     ]

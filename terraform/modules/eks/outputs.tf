@@ -23,11 +23,6 @@ output "external_secrets_role_arn" {
   value       = aws_iam_role.external_secrets_role.arn
 }
 
-output "cloudflare_api_token_secret_arn" {
-  description = "The ARN of the AWS Secrets Manager entry holding the Cloudflare API token"
-  value       = aws_secretsmanager_secret.cloudflare_api_token.arn
-}
-
 output "eks_cluster_endpoint" {
   description = "The endpoint of the EKS cluster"
   value       = aws_eks_cluster.eks_cluster.endpoint
