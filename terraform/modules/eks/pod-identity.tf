@@ -64,7 +64,8 @@ resource "aws_iam_role_policy" "external_secrets_policy" {
         ]
         Resource = [
           var.rds_secret_arn,
-          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:grafana/admin-*"
+          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:grafana/admin-*",
+          aws_secretsmanager_secret.cloudflare_api_token.arn
         ]
       }
     ]
